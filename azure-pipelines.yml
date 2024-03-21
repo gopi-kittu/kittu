@@ -7,13 +7,37 @@ trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: windows 2019
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+  
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproject'
+    displayName: 'Restore Nuget package'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+-
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: '**/*.csproject'
+    arguments: '--no-restore'
+  displayName : 'Build project'
+
+- task: DotNetCoreCLI@2
+  inputs:
+      command: 'test'
+      projects: '**/*Test.csproject'
+  displayName : 'Run Tests'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects : '**/CustmourApi.csproject'
+    arguments : '--configuration $(buildconfiguration) --no-restore'
+    modifyoutputpath: false
+    displayName :'publish customer API'
+
+
+   
